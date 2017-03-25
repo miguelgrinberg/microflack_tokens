@@ -5,9 +5,11 @@ os.environ['FLASK_CONFIG'] = 'test'
 import mock
 import unittest
 
+from etcd import EtcdKeyNotFound
 import jwt
 import requests
 
+from microflack_common.auth import generate_token
 from microflack_common.test import FlackTestCase
 
 from app import app
@@ -48,6 +50,18 @@ class TokenTests(FlackTestCase):
         with mock.patch('app.requests.get', return_value=mock_response):
             r, s, h = self.post('/api/tokens', basic_auth='foo:bar')
         self.assertEqual(s, 401)
+
+    def test_revoke_token(self):
+        token = generate_token(123, expires_in=257)
+        with mock.patch('app.etcd_client') as etcd_client:
+            with mock.patch('microflack_common.auth.etcd_client',
+                            new=etcd_client):
+                etcd_client().read.side_effect = EtcdKeyNotFound
+                r, s, h = self.delete('/api/tokens', token_auth=token)
+                self.assertEqual(s, 204)
+                etcd_client.assert_called_with()
+                etcd_client().write.assert_called_once_with(
+                    '/revoked-tokens/' + token, '', ttl=262)
 
 
 if __name__ == '__main__':

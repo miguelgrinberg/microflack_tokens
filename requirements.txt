@@ -1,3 +1,4 @@
+cachetools==2.0.0
 click==6.7
 dnspython==1.15.0
 docker==2.1.0
@@ -7,7 +8,7 @@ Flask-HTTPAuth==3.2.2
 itsdangerous==0.24
 Jinja2==2.9.6
 MarkupSafe==1.0
-MicroFlack-Common==0.1
+MicroFlack_Common==0.2
 PyJWT==1.4.2
 python-dotenv==0.6.4
 python-etcd==0.4.5
